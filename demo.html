@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Data</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h2>User Data</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+            </tr>
+        </thead>
+        <tbody id="userDataBody">
+            <!-- User data will be dynamically inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Bootstrap Modal for User Details -->
+<div class="modal" id="userDetailsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">User Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="userDetailsBody">
+                <!-- User details will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function loadUserDetails(id) {
+			console.log(id);
+            $.ajax({
+                url: `http://127.0.0.1:5000/userdata/${id}`, // Replace with your actual API endpoint
+				
+                method: 'GET',
+                success: function(details) {
+                    // Clear existing details
+                    $('#userDetailsBody').empty();
+					console.log(details);
+					let zero_index = details[0];
+					console.log(zero_index);
+
+                    // Append new details to the modal
+                    $('#userDetailsBody').html(`
+                        <p><strong>ID:</strong> ${zero_index.user_id}</p>
+                        <p><strong>Title:</strong> ${zero_index.title}</p>
+                        <p><strong>User Data</strong> ${zero_index.user_data}</p>
+                    `);
+
+                    // Show the modal
+                    $('#userDetailsModal').modal('show');
+                },
+                error: function(error) {
+                    console.error('Error fetching user details:', error);
+                }
+            });
+        }
+    // Function to load user data
+    $(document).ready(function() {
+        function loadUserData() {
+            $.ajax({
+                url: 'http://127.0.0.1:5000/userinfo', // Replace with your actual API endpoint
+                method: 'GET',
+                success: function(data) {
+                    // Clear existing data
+                    $('#userDataBody').empty();
+                    console.log(data)
+                    // Append new data to the table
+                    data.forEach(function(user) {
+                        $('#userDataBody').append(`
+                            <tr>
+                                <td>${user.user_id}</td>
+                                <td>${user.user_name}</td>
+                                <td><button class="btn btn-primary" onclick="loadUserDetails(${user.user_id})">Details</button></td>
+                            </tr>
+                        `);
+                    });
+                },
+                error: function(error) {
+                    console.error('Error fetching user data:', error);
+                }
+            });
+        };
+
+        
+
+    // Initial load of user data
+        loadUserData();
+
+    })
+    
+</script>
+
+</body>
+</html>
